@@ -25,6 +25,11 @@ from datetime import datetime
 
 faceScanner = cam.VideoCapture(0)
 
+# Checks to see if the camera is opened or not.
+if not faceScanner.isOpened():
+    print('Cannot open system camera.')
+    exit(0)
+
 # directory to the stored images
 img_directory = "Pictures"
 
@@ -36,7 +41,7 @@ known_face_encoding = []
 for filename in os.listdir(img_directory):
     if filename.endswith(".jpg") or filename.endswith(".png"):
         img_path = os.path.join(img_directory, filename)
-        image = face_recognition.load_image_file(img_path)
+        image = cam.load_image_file(img_path)
         # get face encoding
         try:
             encoding = face_recognition.face_encodings(image)[0]
@@ -77,11 +82,14 @@ lnwriter = csv.writer(attendanceList)
 
 
 while True:
-    _,frame = faceScanner.read()
+    ret, frame = faceScanner.read()
     small_frame = cam.resize(frame, (0, 0), fx = 0.25, fy = 0.25)
     rgb_small_frame = small_frame [:, :, :: - 1]
-    if trueVar:
-        
+    if not ret:
+        print('Cannot recieve frame.\nExiting...')
+        break
+    else:
+        grayScale = cam.cvtColor(frame, cam.COLOR_BGR2GRAY)
         # This will detect if there is a face in the frame or not
         face_coords = face_recognition.face_locations(rgb_small_frame)
         
