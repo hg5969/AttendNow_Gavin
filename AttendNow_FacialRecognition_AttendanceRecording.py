@@ -25,6 +25,10 @@ from datetime import datetime
 
 faceScanner = cam.VideoCapture(0)
 
+# - Show the current date in the excel spread sheet for when the student/employee clocks into work/class
+timeNow = datetime.now()
+currentDate = timeNow.strftime("%Y-%m-%d")
+
 # Checks to see if the camera is opened or not.
 if not faceScanner.isOpened():
     print('Cannot open system camera.')
@@ -32,6 +36,15 @@ if not faceScanner.isOpened():
 
 # directory to the stored images
 img_directory = "Pictures"
+if not os.path.exists(img_directory):
+    os.makdirs(img_directory)
+
+vid_directory = "Videos"
+if not os.path.exists(vid_directory):
+    os.makedirs(vid_directory)
+
+recording = cam.VideoWriter_fourcc(* 'XVID')
+RecOut = cam.VideoWriter(vid_directory, recording, f'output_{currentDate}.avi')
 
 # lists to store the encoded pictures and the names of the students/employees
 known_faces_names = []
@@ -70,26 +83,21 @@ face_encoding = []
 face_names = []
 trueVar = True
 
-# - Show the current date in the excel spread sheet for when the student/employee clocks into work/class
-timeNow = datetime.now()
-currentDate = timeNow.strftime("%Y-%m-%d")
-
 # - Parameters are as follows; file name ('2024-6-3.csv'), opening with write+ method, and newline has no value
 attendanceList = open(currentDate + '.csv',  'w+', newline = '')
 
 # - Class instance for writing data in the csv file
 lnwriter = csv.writer(attendanceList)
 
-
 while True:
     ret, frame = faceScanner.read()
     small_frame = cam.resize(frame, (0, 0), fx = 0.25, fy = 0.25)
     rgb_small_frame = small_frame [:, :, :: - 1]
+    
     if not ret:
         print('Cannot recieve frame.\nExiting...')
         break
     else:
-        grayScale = cam.cvtColor(frame, cam.COLOR_BGR2GRAY)
         # This will detect if there is a face in the frame or not
         face_coords = face_recognition.face_locations(rgb_small_frame)
         
@@ -111,6 +119,7 @@ while True:
                 
                 name = known_faces_names[best_match_index]
                 
+                
             # Now we can enter the name in the csv file
             # if the appended name is in the known_faces_names list then we can write the name, and
             # time of attendance to the csv file
@@ -123,6 +132,8 @@ while True:
                     print("entries:", entries)
                     currentTime = timeNow.strftime("%H:%M:%S")
                     lnwriter.writerow([name, currentTime])
+                    
+        RecOut.write(frame)
     
     # Loop exit conditions
     cam.imshow("attendance system", frame)
