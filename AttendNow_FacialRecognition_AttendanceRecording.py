@@ -22,7 +22,6 @@ import csv
 import os
 from datetime import datetime
 
-
 faceScanner = cam.VideoCapture(0)
 
 # - Show the current date in the excel spread sheet for when the student/employee clocks into work/class
