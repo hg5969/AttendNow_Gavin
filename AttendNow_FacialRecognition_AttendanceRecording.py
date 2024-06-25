@@ -37,14 +37,14 @@ if not faceScanner.isOpened():
 # directory to the stored images
 img_directory = "Pictures"
 if not os.path.exists(img_directory):
-    os.makdirs(img_directory)
+    os.makedirs(img_directory)
 
 vid_directory = "Videos"
 if not os.path.exists(vid_directory):
     os.makedirs(vid_directory)
 
-recording = cam.VideoWriter_fourcc(* 'XVID')
-RecOut = cam.VideoWriter(vid_directory, recording, f'output_{currentDate}.avi')
+recording = cam.VideoWriter_fourcc(*'XVID')
+RecOut = cam.VideoWriter(os.path.join(vid_directory, recording, f'output_{currentDate}.avi'), recording, 20.0, (640, 480))
 
 # lists to store the encoded pictures and the names of the students/employees
 known_faces_names = []
@@ -134,12 +134,21 @@ while True:
                     lnwriter.writerow([name, currentTime])
                     
         RecOut.write(frame)
+        
+        for (top, right, bottom, left), name in zip(face_coords, face_names):
+            top *= 4
+            right *= 4
+            bottom *= 4
+            left *= 4
+
+            cam.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+            cam.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cam.FILLED)
+            cam.putText(frame, name, (left + 6, bottom - 6), cam.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
     
-    # Loop exit conditions
-    cam.imshow("attendance system", frame)
-    # Executed when 'q' is pressed
-    if cam.waitKey(1) & 0xFF == ord('q'):
-        break
+        cam.imshow('Attendance System', frame)
+        # Executed when 'q' is pressed
+        if cam.waitKey(1) & 0xFF == ord('q'):
+            break
     
 faceScanner.release()
 cam.destroyAllWindows()
