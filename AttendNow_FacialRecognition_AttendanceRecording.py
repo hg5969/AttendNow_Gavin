@@ -14,7 +14,6 @@
 # >> "pip install opencv-python"                                                                                #
 #                                                                                                               #
 
-
 import face_recognition
 import cv2 as cam
 import numpy as np
