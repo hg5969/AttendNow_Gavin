@@ -21,7 +21,7 @@ import numpy as np
 import csv
 import os
 from datetime import datetime
-from database import insert_attendance_record, close_connector
+from DataBase import insert_attendance_record, close_connector
 
 faceScanner = cam.VideoCapture(0)
 
